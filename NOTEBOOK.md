@@ -16,8 +16,9 @@ Everything I've learned about coding in Roblox, organized by topic. I update it 
 8. [Roblox value types](#roblox-value-types)
 9. [Services and GetService](#services-and-getservice)
 10. [Parents and children](#parents-and-children)
-11. [Reading an error](#reading-an-error)
-12. [Mistakes I made and what I learned](#mistakes-i-made-and-what-i-learned)
+11. [Functions](#functions)
+12. [Reading an error](#reading-an-error)
+13. [Gotchas](#gotchas)
 
 ---
 
@@ -69,7 +70,7 @@ end
 door.Touched:Connect(openDoor)
 ```
 
-> I haven't learned functions and events yet. The skeleton is here so I get used to the order.
+> I haven't learned events yet. The skeleton is here so I get used to the order.
 
 ---
 
@@ -259,8 +260,6 @@ It's common to get all services this way, at the top of the script.
 
 ## Parents and children
 
-*Learning this right now.*
-
 - **Parent:** the object something sits inside, in Explorer.
 - **Children:** everything inside it.
 - `script.Parent` is the object the script itself sits inside.
@@ -272,6 +271,63 @@ colorPart.Color = Color3.fromRGB(50, 240, 255)
 ```
 
 Why it's useful: I can duplicate the part together with its script, and the code works on every copy without changing any names.
+
+---
+
+## Functions
+
+A function is a named block of code that runs only when I call it.
+
+```lua
+-- Prints my favorite food
+local function printFood()
+	print("Pizza and Sushi, but mostly Sushi")
+end
+
+printFood()
+```
+
+- `function` opens the block and `end` closes it. `local` creates a variable named `printFood`, and the value inside that variable is the function.
+- **Parentheses mean "run it now".** `printFood()` runs the function. `printFood` without parentheses is just the value inside the variable.
+- Empty parentheses mean "run it, and give it nothing".
+- A line that's only a name, like `printFood`, is a syntax error. Luau expects an assignment or a function call there.
+
+```lua
+print(printFood)   -- function: 0x1e39c5bab4c9511f
+```
+
+`print` prints what's inside a variable. A function can't be shown as text, so Luau prints its type and an ID. The function itself doesn't run.
+
+### Functions I was already using
+
+Anything followed by parentheses is a function call:
+
+| Code | What goes in the parentheses |
+|---|---|
+| `print("hello")` | The text to print |
+| `Color3.fromRGB(255, 11, 15)` | Three numbers. Gives back a color |
+| `Vector3.new(35, 35, 35)` | Three numbers. Gives back a Vector3 |
+| `game:GetService("Players")` | The service name. Gives back the service |
+
+Some functions **do** something, like `print`. Others **give back** a value, like `Color3.fromRGB`, and that value goes into a property or a variable.
+
+No parentheses, no function call: `workspace.PracticePart` gets an object, and `part.Anchored` is a property.
+
+### Parameters
+
+The parentheses in the definition list what the function expects to get:
+
+```lua
+local function printFood(food)
+	print("My favorite food is " .. food)
+end
+
+printFood("Sushi")   -- My favorite food is Sushi
+printFood("Pizza")   -- My favorite food is Pizza
+```
+
+- `food` is a **parameter**: a variable that gets its value when the function is called.
+- It exists only inside the function. After `end`, there is no `food`.
 
 ---
 
@@ -297,12 +353,13 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 
 ---
 
-## Mistakes I made and what I learned
+## Gotchas
 
-| What happened | What I learned |
+| Gotcha | What to remember |
 |---|---|
-| Output printed `isMaki` with no space | `..` doesn't add a space |
-| I expected an error from `local myName: string = 45` | Types are checked only in the editor, not at runtime |
-| Properties showed old values, so I thought my script didn't work | Stopping the game resets everything. Check while the game is running |
-| I wrote `practicePart` with a lowercase p | Names are case-sensitive. The error: `is not a valid member of` |
-| I pressed Format and expected it to add spaces | Format only fixes indentation |
+| `..` doesn't add a space | `"my cat is" .. "Maki"` prints `my cat isMaki` |
+| Types don't stop the game | `local myName: string = 45` only gets a warning in the editor, and still runs |
+| Stopping the game resets everything | To see what a script did, check Properties while the game is running |
+| Names are case-sensitive | `practicePart` is not `PracticePart`. The error: `is not a valid member of` |
+| Format only fixes indentation | Spaces inside a line are added by hand |
+| A function name without `()` doesn't run it | `printFood` alone is a syntax error, and `print(printFood)` prints `function: 0x...` |

@@ -21,8 +21,8 @@ This repo is my public learning notebook: what I learn, where I get stuck, the m
 | Stage | Topic | Status |
 |---|---|---|
 | 0 | Roblox Studio basics (no code) | ✅ Done |
-| 1 | First scripts: variables and properties | 🟡 In progress |
-| 2 | Conditions and functions | ⬜ |
+| 1 | First scripts: variables and properties | ✅ Done |
+| 2 | Conditions and functions | 🟡 In progress |
 | 3 | Events | ⬜ |
 | 4 | Loops and timing | ⬜ |
 | 5 | Tables | ⬜ |
