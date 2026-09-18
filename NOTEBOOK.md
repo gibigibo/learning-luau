@@ -15,10 +15,11 @@ Everything I've learned about coding in Roblox, organized by topic. I update it 
 7. [Objects and properties](#objects-and-properties)
 8. [Roblox value types](#roblox-value-types)
 9. [Services and GetService](#services-and-getservice)
-10. [Parents and children](#parents-and-children)
+10. [Parents and children and script.Parent](#parents-and-children-and-scriptparent)
 11. [Functions](#functions)
-12. [Reading an error](#reading-an-error)
-13. [Gotchas](#gotchas)
+12. [Events](#events)
+13. [Reading an error](#reading-an-error)
+14. [Gotchas](#gotchas)
 
 ---
 
@@ -69,8 +70,6 @@ end
 -- 6. Events: connect everything at the bottom
 door.Touched:Connect(openDoor)
 ```
-
-> I haven't learned events yet. The skeleton is here so I get used to the order.
 
 ---
 
@@ -279,7 +278,7 @@ It's common to get all services this way, at the top of the script.
 
 ---
 
-## Parents and children
+## Parents and children and script.Parent
 
 - **Parent:** the object something sits inside, in Explorer.
 - **Children:** everything inside it.
@@ -374,6 +373,52 @@ print(shout())   -- Output: hello, and then an empty line, because shout gave ba
 
 ---
 
+## Events
+
+An event is an object that fires when something happens. I connect a function to it, and from then on the function runs every time the event fires.
+
+```lua
+-- Script inside a part
+local trap = script.Parent
+
+local function onTouch(otherPart)
+	print(otherPart.Name .. " touched the trap")
+end
+
+trap.Touched:Connect(onTouch)
+```
+
+- `trap.Touched` is a signal object. It doesn't do anything by itself, it just fires.
+- `:Connect` is a function of that signal. It registers my function as a listener.
+- `onTouch` goes in **without parentheses**: the function itself, not its result.
+- The `Connect` line runs once, when the game starts, and prints nothing. The script then finishes, but the connection stays alive.
+
+### Reading an event in the docs
+
+```text
+BasePart.Touched(otherPart: BasePart): RBXScriptSignal
+```
+
+| Part | Meaning |
+|---|---|
+| `BasePart` | The class the event belongs to. Every Part is a BasePart |
+| `.Touched` | The name of the event |
+| `(otherPart: BasePart)` | What the event hands to my function: the other part that touched |
+| `: RBXScriptSignal` | What `part.Touched` itself is: a signal, not a function |
+
+A colon means "of type". That's why it's `:Connect` and not a call on `Touched` itself. The same signal also has `Once` and `Wait`.
+
+### Touched fires a lot
+
+- A character is made of many parts, and each one fires `Touched` separately. Output groups identical lines and counts them: `Touched (x20)`.
+- `Touched` doesn't care who touched: a player, another part, or the ground.
+- A part that isn't `Anchored` rests on the floor, so `Touched` fires the moment the game starts, before any player is involved.
+- If the function contains `task.wait`, new calls keep starting while the first one is still waiting, so several copies of it run at the same time. The fix is a debounce, which needs `if`.
+
+Inside the function there are always two different objects: the part the script sits in, and the one that touched it.
+
+---
+
 ## Reading an error
 
 ```text
@@ -408,3 +453,5 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 | A function name without `()` doesn't run it | `printFood` alone is a syntax error, and `print(printFood)` prints `function: 0x...` |
 | A function without `return` hands back `nil` | `"text " .. myFunction()` fails with `attempt to concatenate string with nil` |
 | Names in Explorer don't have to be unique | `workspace.ColorPart` returns the first match, so a second part with the same name looks like a broken script |
+| `Anchored` freezes a part where it is | It doesn't lift it into the air. Move it up first, and set Anchored while the game is stopped |
+| Players exist only while the game is running | A script can't be placed on a player in advance |

@@ -23,7 +23,7 @@ This repo is my public learning notebook: what I learn, where I get stuck, the m
 | 0 | Roblox Studio basics (no code) | ✅ Done |
 | 1 | First scripts: variables and properties | ✅ Done |
 | 2 | Conditions and functions | 🟡 In progress |
-| 3 | Events | ⬜ |
+| 3 | Events | 🟡 In progress |
 | 4 | Loops and timing | ⬜ |
 | 5 | Tables | ⬜ |
 | 6 | Players and leaderstats | ⬜ |
