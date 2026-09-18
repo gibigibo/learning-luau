@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 17, 2026
+**Last updated:** September 18, 2026
 
 ## Contents
 
@@ -153,6 +153,27 @@ print("Sorry, my second cat is " .. secondCat)
 print("my cat is " .. secondCat)   -- my cat is Maki
 print("my cat is" .. secondCat)    -- my cat isMaki
 ```
+
+### local and scope
+
+`local` decides **where** a variable exists, not what's inside it. The term for that is **scope**.
+
+```lua
+local function test()
+	local insideOnly = "A"
+	globalOne = "B"
+end
+
+test()
+print(insideOnly)   -- nil: it died at the end of the function
+print(globalOne)    -- B
+```
+
+- With `local`, the variable lives only in the block where it was created, up to the closest `end`.
+- Without `local`, the name goes into the script's global table. Global means the whole file, not the whole game: every script runs in its own environment, so another script reading that name gets `nil` and the warning `Unknown global 'x'`.
+- Changing the value of an existing `local` later is not a new variable and does not make it global. `local` is decided once, at creation.
+- Luau doesn't require declaring anything: assigning to a name creates it, and reading a name that doesn't exist gives `nil` instead of an error. That's why a missing `local` still runs, and why a typo is only caught when reading the name, not when assigning to it.
+- Reasons to always use `local`: it's faster, it can't overwrite a variable belonging to another function in the same file, and the editor can catch typos for me.
 
 ---
 
@@ -329,6 +350,28 @@ printFood("Pizza")   -- My favorite food is Pizza
 - `food` is a **parameter**: a variable that gets its value when the function is called.
 - It exists only inside the function. After `end`, there is no `food`.
 
+### return: handing a value back
+
+Printing is not the same as handing a value back. `print` writes into the Output window, which is a screen I look at, not something the code can use.
+
+```lua
+local function shout()
+	print("hello")     -- writes to Output
+end
+
+local function give()
+	return "hello"     -- hands the value back
+end
+
+shout()          -- Output: hello
+print(give())    -- Output: hello
+print(shout())   -- Output: hello, and then an empty line, because shout gave back nil
+```
+
+- A function without `return` hands back `nil`. That's why `"I love to eat " .. printFood()` fails with `attempt to concatenate string with nil`.
+- `return` also stops the function. Nothing after it runs.
+- In Output, a line printed inside a function is tagged with the line of the `print` inside the function, not the line that called it. Same text, different source.
+
 ---
 
 ## Reading an error
@@ -363,3 +406,5 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 | Names are case-sensitive | `practicePart` is not `PracticePart`. The error: `is not a valid member of` |
 | Format only fixes indentation | Spaces inside a line are added by hand |
 | A function name without `()` doesn't run it | `printFood` alone is a syntax error, and `print(printFood)` prints `function: 0x...` |
+| A function without `return` hands back `nil` | `"text " .. myFunction()` fails with `attempt to concatenate string with nil` |
+| Names in Explorer don't have to be unique | `workspace.ColorPart` returns the first match, so a second part with the same name looks like a broken script |
