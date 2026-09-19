@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 18, 2026
+**Last updated:** September 19, 2026
 
 ## Contents
 
@@ -18,8 +18,9 @@ Everything I've learned about coding in Roblox, organized by topic. I update it 
 10. [Parents and children and script.Parent](#parents-and-children-and-scriptparent)
 11. [Functions](#functions)
 12. [Events](#events)
-13. [Reading an error](#reading-an-error)
-14. [Gotchas](#gotchas)
+13. [Creating objects: Instance.new](#creating-objects-instancenew)
+14. [Reading an error](#reading-an-error)
+15. [Gotchas](#gotchas)
 
 ---
 
@@ -237,6 +238,7 @@ Every property accepts **one type** of value:
 | Color | Color3 | `Color3.fromRGB(255, 11, 15)` |
 | Size | Vector3 | `Vector3.new(35, 35, 35)` |
 | Position | Vector3 | `Vector3.new(0, 10, 0)` |
+| Parent | another object | `workspace.Ocean` |
 
 ### Color3: a color made of three numbers (red, green, blue)
 
@@ -291,6 +293,16 @@ colorPart.Color = Color3.fromRGB(50, 240, 255)
 ```
 
 Why it's useful: I can duplicate the part together with its script, and the code works on every copy without changing any names.
+
+`Parent` is not only something I read. Setting it **moves the object**, exactly like dragging it in Explorer:
+
+```lua
+workspace.Coal.Parent = workspace.Ocean   -- Coal is now inside Ocean
+```
+
+- The value of `Parent` is another object, not a number or a color. It answers "who am I inside of".
+- `part.Parent = nil` takes an object out of the world but keeps it in memory, so it can be put back. `Destroy` is final.
+- The parent decides whether code runs at all: a Script inside `Workspace` or `ServerScriptService` runs, the same script inside a storage service or under `Players` does not.
 
 ---
 
@@ -348,6 +360,26 @@ printFood("Pizza")   -- My favorite food is Pizza
 
 - `food` is a **parameter**: a variable that gets its value when the function is called.
 - It exists only inside the function. After `end`, there is no `food`.
+
+More than one parameter is just more names, separated by commas:
+
+```lua
+local function sortGarbage(trash, recyclable)   -- parameters
+	trash:Destroy()
+	Instance.new("ParticleEmitter").Parent = recyclable
+end
+
+sortGarbage(workspace.Coal, workspace.Ocean)    -- arguments
+```
+
+| Word | Where it is | What it is |
+|---|---|---|
+| Parameter | The definition line | An empty name waiting for a value |
+| Argument | The call line | The value I actually hand over |
+
+What connects them is the **order**, nothing else. The first argument goes into the first parameter. Swapping the two calls above would destroy the ocean and put sparkles on the coal, and the code would run without complaining.
+
+A parameter holds whatever was passed in, including an object. Inside the function, `recyclable` **is** the Ocean part.
 
 ### return: handing a value back
 
@@ -419,6 +451,22 @@ Inside the function there are always two different objects: the part the script 
 
 ---
 
+## Creating objects: Instance.new
+
+`Instance.new("ClassName")` creates a new object from code: the same thing as inserting it by hand in Studio.
+
+```lua
+local sparkle = Instance.new("ParticleEmitter")
+sparkle.Parent = workspace.Ocean
+```
+
+- The first line creates the object, but **it is nowhere in the game yet**. Nothing appears on screen and nothing shows in Explorer.
+- The second line gives it a parent, and only then it exists in the world and starts working.
+- The name in quotes is the class: `Part`, `Folder`, `ParticleEmitter`, `Fire`, and so on. The same list Insert Object shows.
+- Properties are set the same way as on any other object, before or after setting the parent.
+
+---
+
 ## Reading an error
 
 ```text
@@ -455,3 +503,5 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 | Names in Explorer don't have to be unique | `workspace.ColorPart` returns the first match, so a second part with the same name looks like a broken script |
 | `Anchored` freezes a part where it is | It doesn't lift it into the air. Move it up first, and set Anchored while the game is stopped |
 | Players exist only while the game is running | A script can't be placed on a player in advance |
+| `Instance.new` alone shows nothing | The object has no parent yet. It appears only after `Parent` is set |
+| `CanCollide = false` doesn't stop `Touched` | That's how invisible trigger zones work. The property that stops the event is `CanTouch` |
