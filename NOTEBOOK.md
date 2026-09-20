@@ -419,6 +419,22 @@ local humanoid = character:FindFirstChildWhichIsA("Humanoid")
 
 Why search instead of writing `character.Humanoid`: a direct path **throws an error** when the thing isn't there, and the search returns `nil` quietly. That is what makes it usable in an `if`.
 
+The name explains the behaviour:
+
+| Part of the name | What it means |
+|---|---|
+| `Find` | It searches, so it may fail. It returns `nil` instead of erroring |
+| `FirstChild` | It stops at the first match, and looks only at direct children |
+| `WhichIsA` | The test is the class, not the name |
+
+A quick way to see it working:
+
+```lua
+print(character, character:FindFirstChildWhichIsA("Humanoid"))
+-- a player:      Alpharenko Humanoid
+-- anything else: Workspace nil
+```
+
 ---
 
 ## Functions
@@ -622,6 +638,7 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 | `ChangeColor:2` | The script name and the line number |
 
 - Clicking the red line in Output jumps to that line in the code.
+- The message names the object it looked inside, with its full path, for example `MeshPart "Workspace.Alpharenko.RightFoot"`. That alone often tells me what an object is and where it sits.
 - The lines from `Stack Begin` to `Stack End` show the path the code took to reach the error.
 - **The script stops at the line with the error.** Nothing after it runs.
 - Script Analysis does **not** catch this kind of error, because the editor can't know what will exist in the game. It only shows up in Output.
