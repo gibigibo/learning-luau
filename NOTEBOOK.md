@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 19, 2026
+**Last updated:** September 20, 2026
 
 ## Contents
 
@@ -11,16 +11,17 @@ Everything I've learned about coding in Roblox, organized by topic. I update it 
 3. [Style and readability](#style-and-readability)
 4. [Comments](#comments)
 5. [Variables](#variables)
-6. [Types (optional for now)](#types-optional-for-now)
-7. [Objects and properties](#objects-and-properties)
-8. [Roblox value types](#roblox-value-types)
-9. [Services and GetService](#services-and-getservice)
-10. [Parents and children and script.Parent](#parents-and-children-and-scriptparent)
-11. [Functions](#functions)
-12. [Events](#events)
-13. [Creating objects: Instance.new](#creating-objects-instancenew)
-14. [Reading an error](#reading-an-error)
-15. [Gotchas](#gotchas)
+6. [Operators](#operators)
+7. [Types (optional for now)](#types-optional-for-now)
+8. [Objects and properties](#objects-and-properties)
+9. [Roblox value types](#roblox-value-types)
+10. [Services and GetService](#services-and-getservice)
+11. [Parents and children and script.Parent](#parents-and-children-and-scriptparent)
+12. [Functions](#functions)
+13. [Events](#events)
+14. [Creating objects: Instance.new](#creating-objects-instancenew)
+15. [Reading an error](#reading-an-error)
+16. [Gotchas](#gotchas)
 
 ---
 
@@ -154,6 +155,38 @@ print("my cat is " .. secondCat)   -- my cat is Maki
 print("my cat is" .. secondCat)    -- my cat isMaki
 ```
 
+### Copies and references
+
+A variable takes a **copy** of a value, not a link to it:
+
+```lua
+local normalSpeed = humanoid.WalkSpeed   -- copies the number 16
+humanoid.WalkSpeed += 10                 -- WalkSpeed is now 26
+print(normalSpeed)                       -- still 16
+```
+
+Objects are the exception. A variable holding an object holds a **reference** to it, like an address, so changing something through the variable changes the real thing in the game:
+
+```lua
+local part = workspace.PracticePart
+part.Transparency = 0.5                  -- the actual part changes
+```
+
+Numbers, text and true/false are copied. Objects are referenced.
+
+### print: `..` versus commas
+
+```lua
+print("The speed is " .. humanoid.WalkSpeed)   -- one string, built by me
+print("The speed is", humanoid.WalkSpeed)      -- two values, handed to print
+```
+
+- `..` is an **operator**. It builds one new string and accepts only text and numbers. It crashes on `nil` and on objects.
+- `,` is a **separator**. It hands several values to a function, and it works the same way in every function: `Vector3.new(1, 2, 3)`, `sortGarbage(coal, ocean)`.
+- `print` accepts any number of values of any type, puts a space between them, and turns each one into text on its own. An object prints as its name, and `nil` prints as `nil` instead of crashing.
+- Rule of thumb: `..` for a sentence shown to a player or stored in a variable, commas for checking what's inside something while developing.
+- `tostring(value)` turns anything into text, including `nil`, if I do need it inside a `..`.
+
 ### local and scope
 
 `local` decides **where** a variable exists, not what's inside it. The term for that is **scope**.
@@ -174,6 +207,55 @@ print(globalOne)    -- B
 - Changing the value of an existing `local` later is not a new variable and does not make it global. `local` is decided once, at creation.
 - Luau doesn't require declaring anything: assigning to a name creates it, and reading a name that doesn't exist gives `nil` instead of an error. That's why a missing `local` still runs, and why a typo is only caught when reading the name, not when assigning to it.
 - Reasons to always use `local`: it's faster, it can't overwrite a variable belonging to another function in the same file, and the editor can catch typos for me.
+
+---
+
+## Operators
+
+### Math
+
+| Symbol | What it does |
+|---|---|
+| `+` | Addition |
+| `-` | Subtraction |
+| `*` | Multiplication |
+| `/` | Division |
+| `%` | Remainder |
+| `^` | Power |
+
+```lua
+local coins = 10
+coins = coins + 5     -- 15
+coins = coins * 2     -- 30
+
+print(10 % 3)         -- 1: the remainder
+print(2 ^ 3)          -- 8
+```
+
+Shorthand: `coins += 5` is the same as `coins = coins + 5`. There is also `-=`, `*=`, `/=` and `..=`.
+
+Joining text has its own operator, `..`, in the Variables chapter.
+
+### Comparison
+
+| Symbol | What it checks |
+|---|---|
+| `==` | Equal to |
+| `~=` | Not equal to |
+| `<` | Less than |
+| `>` | Greater than |
+| `<=` | Less than or equal to |
+| `>=` | Greater than or equal to |
+
+A comparison always produces `true` or `false`:
+
+```lua
+print(5 > 3)        -- true
+print(5 == 5)       -- true
+print(5 == "5")     -- false: a number is not a string
+```
+
+**The classic trap:** `=` puts a value into a variable, `==` checks equality. A line like `if coins = 10 then` is a syntax error.
 
 ---
 
@@ -224,6 +306,25 @@ part.Anchored = true
 - The name in the code has to be **exactly** the same as in Explorer, including upper and lower case.
 - Properties can be linked: when I changed `Color`, `BrickColor` updated by itself to the closest color.
 - A part that isn't `Anchored` gets moved by physics. For example, when it grows, it gets pushed and settles at an angle.
+
+### `.` and `:`
+
+Everything inside an object is reached with a dot. The one special case is running a function that belongs to the object, which uses a colon.
+
+```lua
+part.Transparency = 0.5     -- a number inside the part
+part:Destroy()              -- a function inside the part
+```
+
+| What it is | Symbol | Example |
+|---|---|---|
+| Property | `.` | `part.Anchored`, `part.Name` |
+| Child in Explorer | `.` | `workspace.Ocean`, `script.Parent` |
+| Event | `.` | `part.Touched` |
+| Function of the object | `:` | `part:Destroy()`, `character:FindFirstChild("X")` |
+| Function of an event | `:` | `part.Touched:Connect(onTouch)` |
+
+Quick test: no parentheses means a dot. Parentheses on a function that belongs to an object mean a colon. Functions that only produce a new value, like `Color3.fromRGB(...)`, `Vector3.new(...)` and `Instance.new(...)`, use a dot, because there is no object for them to work on.
 
 ---
 
@@ -303,6 +404,20 @@ workspace.Coal.Parent = workspace.Ocean   -- Coal is now inside Ocean
 - The value of `Parent` is another object, not a number or a color. It answers "who am I inside of".
 - `part.Parent = nil` takes an object out of the world but keeps it in memory, so it can be put back. `Destroy` is final.
 - The parent decides whether code runs at all: a Script inside `Workspace` or `ServerScriptService` runs, the same script inside a storage service or under `Players` does not.
+
+### Looking for a child
+
+| Function | Looks for | Returns |
+|---|---|---|
+| `FindFirstChild("Humanoid")` | A child with that **name** | The child, or `nil` |
+| `FindFirstChildWhichIsA("Humanoid")` | A child of that **class** | The child, or `nil` |
+| `FindFirstChildOfClass("Humanoid")` | That exact class | The child, or `nil` |
+
+```lua
+local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+```
+
+Why search instead of writing `character.Humanoid`: a direct path **throws an error** when the thing isn't there, and the search returns `nil` quietly. That is what makes it usable in an `if`.
 
 ---
 
@@ -449,6 +564,32 @@ A colon means "of type". That's why it's `:Connect` and not a call on `Touched` 
 
 Inside the function there are always two different objects: the part the script sits in, and the one that touched it.
 
+### Is the toucher a player?
+
+```lua
+local function onTouch(otherPart)
+	local character = otherPart.Parent
+	local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+	if humanoid then
+		-- it's a character
+	end
+end
+```
+
+`otherPart` is a single body part, its parent is the whole character, and a character always contains a Humanoid. Anything else, like the floor or another part, gives `nil`.
+
+### Debounce
+
+To stop one touch from running the function many times, the part stops firing events while the work is happening:
+
+```lua
+part.CanTouch = false
+-- do the thing, including any task.wait
+part.CanTouch = true
+```
+
+The line that turns it back on has to come **after** the waiting. If it comes before, the part reopens while the first run is still going, and a second copy of the function starts alongside it.
+
 ---
 
 ## Creating objects: Instance.new
@@ -505,3 +646,5 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 | Players exist only while the game is running | A script can't be placed on a player in advance |
 | `Instance.new` alone shows nothing | The object has no parent yet. It appears only after `Parent` is set |
 | `CanCollide = false` doesn't stop `Touched` | That's how invisible trigger zones work. The property that stops the event is `CanTouch` |
+| `character.Humanoid` throws if it isn't there | Use `FindFirstChildWhichIsA("Humanoid")`, which returns `nil` instead |
+| A number copied from a property stops tracking it | `local speed = humanoid.WalkSpeed` keeps the old number after the property changes |
