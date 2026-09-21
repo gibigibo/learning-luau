@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 20, 2026
+**Last updated:** September 21, 2026
 
 ## Contents
 
@@ -12,16 +12,19 @@ Everything I've learned about coding in Roblox, organized by topic. I update it 
 4. [Comments](#comments)
 5. [Variables](#variables)
 6. [Operators](#operators)
-7. [Types (optional for now)](#types-optional-for-now)
-8. [Objects and properties](#objects-and-properties)
-9. [Roblox value types](#roblox-value-types)
-10. [Services and GetService](#services-and-getservice)
-11. [Parents and children and script.Parent](#parents-and-children-and-scriptparent)
-12. [Functions](#functions)
-13. [Events](#events)
-14. [Creating objects: Instance.new](#creating-objects-instancenew)
-15. [Reading an error](#reading-an-error)
-16. [Gotchas](#gotchas)
+7. [Conditions](#conditions)
+8. [Loops](#loops)
+9. [Types (optional for now)](#types-optional-for-now)
+10. [Objects and properties](#objects-and-properties)
+11. [Roblox value types](#roblox-value-types)
+12. [Services and GetService](#services-and-getservice)
+13. [Parents and children and script.Parent](#parents-and-children-and-scriptparent)
+14. [Functions](#functions)
+15. [Events](#events)
+16. [Creating objects: Instance.new](#creating-objects-instancenew)
+17. [Reading an error](#reading-an-error)
+18. [Lua and Luau](#lua-and-luau)
+19. [Gotchas](#gotchas)
 
 ---
 
@@ -256,6 +259,76 @@ print(5 == "5")     -- false: a number is not a string
 ```
 
 **The classic trap:** `=` puts a value into a variable, `==` checks equality. A line like `if coins = 10 then` is a syntax error.
+
+---
+
+## Conditions
+
+```lua
+if coins >= 10 then
+	print("rich")
+elseif coins > 0 then
+	print("some")
+else
+	print("broke")
+end
+```
+
+- `elseif` is one word. `else if` with a space opens a new `if` that needs its own `end`.
+- Only two values count as false: `false` and `nil`. Everything else counts as true, including `0` and empty text.
+- So `if raceActive then` is enough. `== true` adds nothing when the value is always true or false.
+
+### and, or, not
+
+- `a and b`: true only if both are.
+- `a or b`: true if at least one is.
+- `not a`: flips it. `if humanoid and not raceActive then` means "a character touched, and the race isn't running".
+- `and` stops as soon as it knows the answer. In `if humanoid and humanoid.WalkSpeed <= 50`, if `humanoid` is `nil`, the right side never runs, so there's no error. The order matters.
+
+### and / or hand back values
+
+`and` and `or` don't only produce true or false. They hand back one of the two values:
+
+- `a and b` gives `a` if `a` is false, otherwise `b`.
+- `a or b` gives `a` if `a` is true, otherwise `b`.
+
+That's why this one line works like an `if`:
+
+```lua
+return boolean and "Yes" or "No"
+```
+
+The trap: it breaks when the middle value is `false` or `nil`. `true and false or "oops"` gives `"oops"`. In Luau there's a cleaner form without the trap: `if boolean then "Yes" else "No"`, which plain Lua doesn't have.
+
+---
+
+## Loops
+
+*A first look. The full chapter comes with stage 4.*
+
+```lua
+while raceActive do
+	task.wait(1)
+	timePassed += 1
+end
+```
+
+- A `while` loop repeats as long as its condition is true.
+- **Every loop needs a `task.wait()`.** Without it the loop never lets anything else in the game run, Studio freezes, and the script is stopped with an error.
+- The script **stays inside the loop** until it ends. Nothing below it runs in the meantime, which is why event connections go **above** the loop.
+- A loop at the bottom of a script runs once, when the script starts. If its condition is false at that moment, it's skipped and never checked again. To run it later, put it inside a function and call that function when needed.
+
+Two other loops:
+
+```lua
+for i = 1, 10 do
+	print(i)          -- 1 to 10
+end
+
+repeat
+	task.wait(1)
+until not raceActive  -- checks at the end, so it runs at least once
+```
 
 ---
 
@@ -532,6 +605,7 @@ print(shout())   -- Output: hello, and then an empty line, because shout gave ba
 
 - A function without `return` hands back `nil`. That's why `"I love to eat " .. printFood()` fails with `attempt to concatenate string with nil`.
 - `return` also stops the function. Nothing after it runs.
+- On Codewars and Exercism, the test calls my function and checks what it **returns**. Printing the right answer doesn't count.
 - In Output, a line printed inside a function is tagged with the line of the `print` inside the function, not the line that called it. Same text, different source.
 
 ---
@@ -594,6 +668,26 @@ end
 
 `otherPart` is a single body part, its parent is the whole character, and a character always contains a Humanoid. Anything else, like the floor or another part, gives `nil`.
 
+### One function for two parts
+
+A handler receives only what the event hands it. `Touched` hands over who touched, never which part was touched, so one function connected to two parts can't tell them apart. `Connect` accepts only the function, so an extra value after a comma never arrives.
+
+To pass extra information, wrap the call in a small function without a name:
+
+```lua
+startLine.Touched:Connect(function(otherPart)
+	partTouched(otherPart, startLine)
+end)
+
+local function partTouched(otherPart, line)
+	if line == startLine then
+		-- ...
+	end
+end
+```
+
+`line == startLine` compares the objects themselves, which works because variables hold references to objects. The other option is simply a separate function for each part.
+
 ### Debounce
 
 To stop one touch from running the function many times, the part stops firing events while the work is happening:
@@ -647,6 +741,23 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 
 ---
 
+## Lua and Luau
+
+Luau is Roblox's version of Lua. It started from Lua 5.1 and was released as open source in 2021. Almost all basic code is the same in both.
+
+| Only in Luau | Example |
+|---|---|
+| Shorthand assignment | `coins += 5` |
+| Types | `local name: string = "Daniel"` and `--!strict` |
+| `if` that produces a value | `if active then "Yes" else "No"` |
+| `continue` in loops | skips one round of a loop |
+
+- Luau removed things that are unsafe in a game running on millions of devices, such as reading files from the player's computer.
+- Codewars and Exercism run plain Lua, so none of the Luau-only features work there.
+- When searching for help, add "Luau" or "Roblox". Plain Lua tutorials mostly work, except for file access and loading external code.
+
+---
+
 ## Gotchas
 
 | Gotcha | What to remember |
@@ -665,3 +776,6 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 | `CanCollide = false` doesn't stop `Touched` | That's how invisible trigger zones work. The property that stops the event is `CanTouch` |
 | `character.Humanoid` throws if it isn't there | Use `FindFirstChildWhichIsA("Humanoid")`, which returns `nil` instead |
 | A number copied from a property stops tracking it | `local speed = humanoid.WalkSpeed` keeps the old number after the property changes |
+| A loop without `task.wait()` freezes Studio | Every `while` and `repeat` needs one inside |
+| Code below a loop waits for the loop to end | Connect events above the loop |
+| One handler for two parts can't tell them apart | Wrap it and pass the part, or write one function per part |
