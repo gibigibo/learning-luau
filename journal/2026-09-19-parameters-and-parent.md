@@ -1,8 +1,8 @@
-# The line that felt like a backwards variable
+# Coal is now a child of Ocean
 
 **September 19, 2026**
 
-I finished the buttons page today, and it was the first time the course felt like practice rather than new material. A button that makes a bridge solid, and a bonus one that opens a door:
+Finished the buttons page. That one was really fun, and for once it felt like practice instead of new stuff. A button that makes a bridge appear, and a bonus door:
 
 ```lua
 local button = script.Parent
@@ -17,59 +17,39 @@ end
 button.Touched:Connect(pressButton)
 ```
 
-Output said `Door Trigger (x7)`, so again one touch ran the function seven times. Harmless here, because setting transparency seven times looks the same as once, but I know by now that it won't stay harmless.
+`Door Trigger (x7)` in Output. Again. Harmless this time.
 
-I also learned what `CanCollide` does: it decides whether a part is solid or whether I walk straight through it. Turning it off does not stop `Touched` from firing, which is how invisible trigger zones work. The property that stops the event is `CanTouch`.
+`CanCollide` is solid or walk-through. With it off, `Touched` still fires, which is how invisible trigger zones work.
 
-## Parameters and arguments
+Then the next page lost me. `Instance.new("ParticleEmitter")`, what is that? I couldn't even find ParticleEmitter in the insert menu at first. `Instance.new` makes a new object from code. But after that line nothing shows up. It exists, it just isn't anywhere yet.
 
-Two words for the two sides of the same thing:
-
-```lua
-local function sortGarbage(trash, recyclable)   -- parameters
-sortGarbage(coal, ocean)                        -- arguments
-```
-
-The parameters are the empty names in the definition. The arguments are the values I actually hand over. What connects them is the order and nothing else: the first argument goes into the first parameter. If I called `sortGarbage(ocean, coal)`, the ocean would be destroyed and the coal would get the sparkles, and the code would run happily.
-
-## Instance.new, and objects that exist nowhere
-
-Until today I only changed objects that already existed in the world. `Instance.new("ParticleEmitter")` creates a new one from code, the same thing as inserting it by hand in Studio.
-
-What threw me is that after that line, nothing appears. The object exists, but it isn't anywhere in the game yet.
-
-## `sparkle.Parent = recyclable`
-
-This line felt like a backwards variable to me, and it took a while to see why.
-
-Every assignment I had written before put a simple value into a property: a number, a color, true or false.
+And this line:
 
 ```lua
-part.Transparency = 0.5
-part.Anchored = true
+sparkle.Parent = recyclable
 ```
 
-Here the value going into the property is **another object**. `Parent` answers "who am I inside of", so of course its value is a thing, not a number. Setting it is what puts the new emitter into the world.
+It felt like a backwards variable. Everything I'd assigned before was a number, a color, true or false. Here the value is another object. And `recyclable` is a parameter, so I couldn't see what it actually was. At one point I said "it's not a variable". It is.
 
-The second half of my confusion was that `recyclable` is a parameter, so I couldn't see what it really was. Spelled out with no variables at all, the whole function is this:
+What helped was writing the whole thing with no variables at all:
 
 ```lua
 workspace.Coal:Destroy()
 Instance.new("ParticleEmitter").Parent = workspace.Ocean
 ```
 
-I had been reading `recyclable` as a word rather than as a box holding the Ocean part.
-
-Then I got asked what this line does:
+Then I got asked what this does:
 
 ```lua
 workspace.Coal.Parent = workspace.Ocean
 ```
 
-Coal becomes a child of Ocean and moves inside it in Explorer, exactly as if I had dragged it there. That was the moment it clicked: `Parent` isn't only something I read from, it's something I set, and setting it moves the object.
+Coal becomes a child of Ocean. It moves inside it, like dragging it in Explorer. OK. So `Parent` is something you can set, not only read.
 
-Two things that follow from it: `Parent = nil` takes an object out of the world but keeps it in memory, unlike `Destroy` which is final. And the parent is what decides whether a script runs at all, which explains why my script under `Players` did nothing.
+Parameters vs arguments, for the record: parameters are the names in the definition, arguments are what you actually pass in. Only the order connects them.
+
+Pretty tired by the end of this one.
 
 ## Next
 
-- Conditionals, starting from the coding-3 landing page
+- Conditions

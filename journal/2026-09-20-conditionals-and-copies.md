@@ -1,22 +1,18 @@
-# A number is a copy, an object is not
+# The default WalkSpeed is 16
 
 **September 20, 2026**
 
-Started conditionals today, and most of the session went into a speed boost part I built while learning them.
-
-## Finding the default speed instead of looking it up
-
-I wanted to know what a player's normal `WalkSpeed` is. Instead of searching for it, I printed it from the running game:
+I wanted to know a player's normal speed. Didn't google it, just printed it:
 
 ```lua
 print("The speed is", Humanoid.WalkSpeed)
 ```
 
-16. A certain answer from my own game rather than a number from a forum post.
+16. Did that one on my own, without asking.
 
-That print also taught me something. I had hit `attempt to concatenate Instance with string` again, the same error as two days ago, because I tried to join the touching part itself instead of its `Name`. The comma version doesn't have that problem: `..` is an operator that builds one string and only accepts text or numbers, while a comma just separates values handed to a function, and `print` takes as many as I give it, of any type. `print("Player:", player)` prints `nil` happily where `..` would crash the script.
+About that comma: earlier I hit `attempt to concatenate Instance with string` again, same as two days ago. With commas, `print` takes whatever you give it and prints each thing. `..` only joins text and numbers, and crashes on anything else.
 
-## The boost
+Then I built a speed boost while learning conditions:
 
 ```lua
 local speedBoost = script.Parent
@@ -40,39 +36,15 @@ end
 speedBoost.Touched:Connect(onTouch)
 ```
 
-`FindFirstChildWhichIsA("Humanoid")` is how I check that whoever touched the part is a character: `otherPart` is a foot, `otherPart.Parent` is the whole character, and the search returns the Humanoid or `nil`. Writing `character.Humanoid` directly would throw an error when it isn't there, which is exactly the case I'm trying to catch.
+A couple of decisions in there are mine. `CanCollide` is off, so you run through it and get the boost without bumping into anything. And the `<= 50` cap is there because if I put a few of these on a map, a player shouldn't be able to stack boosts forever.
 
-Two decisions of mine in there: the part has `CanCollide` off so you run through it instead of climbing it, and the `<= 50` cap exists because once I put several of these on a map, a player could otherwise stack boosts forever.
+`CanTouch = false` was my way to stop it firing 61 times (that's what Output showed before). My first version turned it back on before the 5 second wait, so the part reopened while the boost was still running. Moved one line to after the wait. Fixed.
 
-`CanTouch = false` is my debounce. I turn the part's ability to fire events off while the boost is running. My first version put the `CanTouch = true` before the five second wait, which meant the part reopened while the boost was still counting down: stand still on it and a second copy of the function starts, raises the speed again, and the two copies fight over the same value. Moving one line fixed it.
+Then I got stuck on something that looked obvious. The function changes `Humanoid.WalkSpeed`, so why doesn't `normalSpeed` change with it? Because `normalSpeed` got a copy of the number. Objects work differently: a variable with an object points at the real thing, so changing it through the variable changes the game. `Humanoid.WalkSpeed += 10` changes the character. `normalSpeed` stays 16.
 
-## The question I got stuck on
+Still need to fix: `local normalSpeed = 16` is just the number 16 with a name on it. It should read the real speed before the boost.
 
-The function raises `Humanoid.WalkSpeed`, so why doesn't `normalSpeed` change with it?
-
-Because a variable takes a **copy** of a value, not a link to it. The number 16 goes into `normalSpeed` and stays there no matter what happens to the property afterwards.
-
-Objects are the exception, and that's why the rest of the script works at all:
-
-```lua
-local part = workspace.PracticePart
-part.Transparency = 0.5      -- this changes the real part
-```
-
-A variable holding an object holds a reference to it, like an address, so changing something through the variable changes the actual thing in the game. `Humanoid` is an object, so `Humanoid.WalkSpeed += 10` affects the character. `normalSpeed` is a number, so it's a frozen copy.
-
-One thing I still need to fix: `local normalSpeed = 16` is just the same hardcoded number with a nicer name. To really remember the original it has to read the property before the boost: `local normalSpeed = Humanoid.WalkSpeed`.
-
-## Dots and colons
-
-I kept getting `.` and `:` wrong, and the explanation I got first made it worse. What finally made sense is the simple version: everything inside an object is reached with a dot, and the only special case is that a function belonging to the object is run with a colon.
-
-```lua
-part.Transparency = 0.5     -- a number inside the part
-part:Destroy()              -- a function inside the part
-```
-
-No parentheses means a dot. Parentheses on a function that belongs to the object mean a colon.
+I also spent way too long on `.` versus `:`. The long explanation made it worse. The version that stuck: everything in an object is reached with a dot, and a function that belongs to the object gets a colon. `part.Transparency`, `part:Destroy()`.
 
 ## Next
 

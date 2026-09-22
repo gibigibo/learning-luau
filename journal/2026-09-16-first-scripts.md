@@ -1,42 +1,24 @@
-# Day 1: My first scripts, and why I stopped copy-pasting
+# I stopped copy-pasting
 
-**Date:** September 16, 2026
-**Topics:** Roblox Studio basics, variables, properties, Color3 and Vector3, reading errors
+**September 16, 2026**
 
-## What I worked on
+Installed Roblox Studio today and went through the building part of Roblox's Core curriculum. Fun, until it got to scripting. The tutorial just hands you a whole script to paste in. I hadn't written a single line of code yet, so I stopped there. I'll go back to it when I can write that script myself.
 
-I installed Roblox Studio and went through the building parts of Roblox's Core curriculum. Then I wrote my first scripts: printing to Output, creating variables, and changing a part's color, size, transparency and anchoring from code.
+So, basics.
 
-## Challenges and how I solved them
+First problem: I wrote `print("Hello world!")` and nothing happened. At least nothing I could see. The Output window was closed, and I didn't know a script only runs after you press Play. Opened Output, pressed Play, there it was.
 
-**I ran my first script and saw nothing.**
-The Output window was closed, and I didn't know a script only runs while the game is running. Opening Output and pressing Play fixed it.
-
-**The tutorial's scripting part was copy-paste.**
-The Core curriculum gave me a full script to paste in before I had written a single line myself. I paused it, and switched to learning the fundamentals by writing my own code. I'll come back to it once I can write that script on my own.
-
-**`local myName: string = 45` didn't give me an error.**
-I expected the game to stop me. It turns out types are checked only in the editor: I got a yellow underline, but at runtime the value is used as is and 45 is printed.
-
-**My script "didn't work", but it did.**
-After stopping the game, Properties showed the old values. Stopping resets everything the script changed. To see the result, I have to look at Properties while the game is running.
-
-## Mistakes I made
-
-- I joined strings with `..` and got `isMaki`, because `..` doesn't add a space.
-- I wrote `practicePart` instead of `PracticePart` on purpose, to see the error: `practicePart is not a valid member of Workspace "Workspace"`. Names are case-sensitive, and the script stops at that line.
-
-## Insights
-
-- Output is the first place to look. It shows my prints, and every runtime error with the script name and line number.
-- The dot means "inside". Reading `workspace.PracticePart.Color` like an address made properties make sense.
-- Every property accepts one type of value. `Color` needs a `Color3`, `Size` needs a `Vector3`, `Anchored` needs `true` or `false`.
-- Following copy-paste tutorials didn't teach me to write code. Writing even a few lines myself did.
-
-## Code from today
+Then variables. I wrote one with the wrong type on purpose:
 
 ```lua
--- Changing a part's properties
+local myName : string = 45
+```
+
+I was sure I'd get an error. It printed 45. The type is only checked in the editor (there was a yellow line under the 45 that I hadn't even noticed), and when the game runs it doesn't care.
+
+Then I changed a part from code:
+
+```lua
 local part = workspace.PracticePart
 
 part.Color = Color3.fromRGB(255, 11, 15)
@@ -45,7 +27,19 @@ part.Transparency = 0.5
 part.Anchored = true
 ```
 
+It worked, but I didn't really get the dots. What helped: a dot means "inside". `workspace.PracticePart.Color` is like an address. I also thought `Color3` was a property. It isn't, it's a type of value. `Color` wants a `Color3`. `Size` wants a `Vector3`, and that one I guessed myself.
+
+Then I checked Properties and the part looked exactly like before. I thought the script didn't work. It did. I was looking after I stopped the game, and stopping resets everything.
+
+Two small ones: `..` doesn't add a space, so my cat sentence came out as `isMaki`. And I wrote `practicePart` with a small p on purpose, to see what happens:
+
+```text
+practicePart is not a valid member of Workspace "Workspace"
+```
+
+Names are case-sensitive, and the script just stops on that line.
+
 ## Next
 
-- Finish parents and children, and `script.Parent`
-- Stage 2: conditions and functions
+- Parents and children, `script.Parent`
+- Conditions and functions

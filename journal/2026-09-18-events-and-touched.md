@@ -1,48 +1,36 @@
-# Events: the line that runs once and keeps working
+# My part destroyed the floor
 
 **September 18, 2026, second session**
 
-## Reading the docs instead of guessing
-
-I got to `Touched` in the course, and the line in the documentation meant nothing to me at first:
+Got to `Touched` in the course. The line in the docs looked like nonsense to me:
 
 ```text
 BasePart.Touched(otherPart: BasePart): RBXScriptSignal
 ```
 
-It turns out it's four separate things: the class the event belongs to, the event name, what the event hands to my function, and what `part.Touched` itself is. The colon means "of type". Once I could read that line, I could read every other event page too.
+Broken down it's four things: the class, the event name, what my function gets (the other part), and what `Touched` itself is (a signal). The colon there means "of type".
 
-## `attempt to concatenate Instance with string`
-
-My first version printed the part that touched the trap:
+First try, printing who touched the trap:
 
 ```lua
 print(objectTouched .. " touched the trap")
 ```
 
-Last time I had this kind of error the problem was `nil`. This time the word was `Instance`, which means the opposite: there is a value, it's just not text. `objectTouched` is the actual object, a piece of the character. What I wanted was its `Name`, which is a property and is text.
+`attempt to concatenate Instance with string`. Last time it said `nil`, this time `Instance`. `objectTouched` is the actual object, a foot or a hand. I needed `objectTouched.Name`.
 
-I'm starting to read the error properly: the word after `concatenate` tells me what was really there.
-
-## The line I didn't understand
+Then this line, which I just couldn't get:
 
 ```lua
 trap.Touched:Connect(onTouch)
 ```
 
-`trap.Touched` is a signal object. It doesn't do anything by itself, it just fires. `:Connect` is a function belonging to that signal, and it registers my function as a listener. `onTouch` goes in without parentheses, because I'm handing over the function itself, not its result.
+`Connect` hooks my function to the event. `onTouch` goes in without `()` because I'm handing over the function, not running it. The weird part for me: the line runs once, at the start, and prints nothing. The script ends. And the connection keeps working anyway.
 
-What made it click: this line runs once, when the game starts, and prints nothing. The script then finishes. The connection stays alive on its own, and the function may run five minutes later, twenty times, or never.
+Around here I felt like I was overdoing it, stopping on every little thing I didn't understand. Kept doing it anyway.
 
-## My own exercise: a part that breaks when touched
+Then I came up with my own exercise: touch a part and it breaks. First run, the part destroyed the floor and fell out of the world. The script was in a part that wasn't anchored, so it was sitting on the floor. `Touched` fired the second the game started, the floor was the "other part", and my code destroyed whatever touched it. The floor.
 
-I wanted to build this myself: touch a part, the part breaks.
-
-The first run destroyed the floor and the part fell through the world. The script was sitting in the part, and the part wasn't anchored, so it was resting on the floor. `Touched` fired the instant the game started, with the floor as the toucher, and my code destroyed whatever touched it.
-
-That's when the two objects inside the function became clear: `part` is me, `otherPart` is whoever touched me. I had been destroying the wrong one.
-
-After anchoring the part in the air, it worked:
+So there are two different things in that function: the part the script is in, and the part that touched it. I was destroying the wrong one. Anchored it up in the air and switched to destroying the part itself:
 
 ```lua
 local part = script.Parent
@@ -58,21 +46,13 @@ end
 part.Touched:Connect(onTouch)
 ```
 
-I had to open my own notebook to remember the `Color3` syntax, which is exactly what the notebook is for.
+Yesss. I had to open my own notebook to remember how to set a color.
 
-## The number in Output that I want to come back to
+Output said `Touched (x9)`, and `(x20)` after I added the wait. A character has a lot of parts, each one fires the event, and with the wait they all pile up. No harm here. Would be a problem if it was giving out points. That fix needs `if`.
 
-Output said `Touched (x9)`, and after I added `task.wait(1)` it said `Touched (x20)`. A character is made of many parts, and each one fires the event separately. With a wait inside the function, new calls keep starting while the first one is still waiting, so about twenty copies of my function were running at the same time, each at a different stage.
-
-Here it did no harm, because destroying an already destroyed part does nothing. If the function had been handing out points or damage, one touch would have paid out twenty times. The fix is called a debounce and it needs `if`, which is next.
-
-## Two smaller things
-
-I tried putting a script under `Players` so it would sit on the player. It doesn't run there: a regular script only runs inside `Workspace` or `ServerScriptService`. And players only exist in Players while the game is running, so there's nothing to attach to in advance.
-
-I also turned off Studio's AI code completion. It kept writing the lines I'm trying to learn to write.
+Also: I tried putting a script under `Players` so it would sit on the player. Doesn't run there. And I turned off Studio's AI autocomplete. It kept writing the code I'm trying to learn to write.
 
 ## Next
 
-- Finish the buttons page in the course
-- Conditions, and then the debounce for that `(x20)`
+- Buttons page
+- Conditions, and fix that `(x20)`

@@ -2,36 +2,24 @@
 
 **September 20, 2026, evening**
 
-Short session. I started a race timer on the finish line and, before writing any logic, I wanted to see what `character` actually holds:
+Short one, I was wiped. Started a race timer on the finish line, and first wanted to see what `character` actually is:
 
 ```lua
-local function partTouched(otherPart)
-	local character = otherPart.Perent
-	print(character)
-end
+local character = otherPart.Perent
+print(character)
 ```
 
-That gave me an error instead of a print:
+Typo. `Perent`. But look at the error:
 
 ```text
 Perent is not a valid member of MeshPart "Workspace.Alpharenko.RightFoot"
 ```
 
-I had written `Perent`. But the error answered my original question anyway: it printed the full path of the object it searched, `Workspace.Alpharenko.RightFoot`. So the foot's parent really is Alpharenko, my character. The error message names the object it was looking inside, which turns out to be a useful way to see where something sits.
+It shows the full path of the thing it was looking in. So the foot's parent is Alpharenko, which is me. Question answered by accident.
 
-## What the search function actually does
+Then `FindFirstChildWhichIsA("Humanoid")`, which I'd been using without really getting it. Easier when you split the name. Find: it looks, and can come back with nothing (`nil`). FirstChild: stops at the first match, and only checks direct children. WhichIsA: checks the type, not the name.
 
-`FindFirstChildWhichIsA("Humanoid")` stopped being a magic incantation once I read the name as three separate words:
-
-| Part of the name | What it means |
-|---|---|
-| `Find` | It searches, so it may fail. It returns `nil` instead of erroring |
-| `FirstChild` | It stops at the first match, and only looks at direct children |
-| `WhichIsA` | The test is the class, not the name |
-
-A character contains Head, RightFoot, HumanoidRootPart, Shirt and so on, and one of those children is a Humanoid. The function walks that list, asks each one whether it is a Humanoid, and hands back the first one it finds.
-
-The reason it fits an `if` is that the answer is always either an object or `nil`. When the floor touches the part, `character` is Workspace, there is no Humanoid inside it, and the condition simply doesn't run.
+A character has a bunch of children, Head, RightFoot, Shirt and so on, and one Humanoid. If the floor touches the part instead, there's no Humanoid, you get `nil`, and the `if` doesn't run.
 
 ## Next
 
