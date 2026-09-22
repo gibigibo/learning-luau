@@ -276,7 +276,7 @@ end
 
 - `elseif` is one word. `else if` with a space opens a new `if` that needs its own `end`.
 - Only two values count as false: `false` and `nil`. Everything else counts as true, including `0` and empty text.
-- So `if raceActive then` is enough. `== true` adds nothing when the value is always true or false.
+- So `if raceActive then` is enough, and `if not raceActive then` replaces `== false`. `== true` adds nothing when the value is always true or false.
 
 ### and, or, not
 
@@ -349,6 +349,16 @@ end
 - **Every loop needs a `task.wait()`.** Without it the loop never lets anything else in the game run, Studio freezes, and the script is stopped with an error.
 - The script **stays inside the loop** until it ends. Nothing below it runs in the meantime, which is why event connections go **above** the loop.
 - A loop at the bottom of a script runs once, when the script starts. If its condition is false at that moment, it's skipped and never checked again. To run it later, put it inside a function and call that function when needed.
+- The condition is only checked at the start of each round. A round that already began finishes even if the condition became false during its `task.wait`. To stop that, check the condition again inside the loop, after the wait:
+
+```lua
+while raceActive do
+	task.wait(1)
+	if raceActive then
+		timePassed += 1
+	end
+end
+```
 
 Two other loops:
 
@@ -720,6 +730,8 @@ end
 
 `line == startLine` compares the objects themselves, which works because variables hold references to objects. The other option is simply a separate function for each part.
 
+A `Connect` line runs **once**, when the script starts, so wrapping it in an `if` only decides whether the connection is ever made. It does not check anything on later touches. Conditions that need checking every time go **inside** the function.
+
 ### Debounce
 
 To stop one touch from running the function many times, the part stops firing events while the work is happening:
@@ -824,3 +836,5 @@ Luau is Roblox's version of Lua. It started from Lua 5.1 and was released as ope
 | Code below a loop waits for the loop to end | Connect events above the loop |
 | One handler for two parts can't tell them apart | Wrap it and pass the part, or write one function per part |
 | `0` counts as true in Lua | Only `false` and `nil` are false. `0 or 25` gives `0` |
+| `else if` with a space is two statements | It opens a new `if` that needs its own `end`. The error is `'end' expected (to close 'if' at line N)` |
+| A local function can't be seen from above | A function written earlier that calls it gets `nil`, and fails with `attempt to call a nil value` when it runs |
