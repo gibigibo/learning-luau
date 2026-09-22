@@ -1,8 +1,6 @@
 # Learning Luau
 
-I'm Daniel, and I'm learning to code Roblox games in Luau, starting from zero.
-
-This repo is my public learning notebook: what I learn, where I get stuck, the mistakes I make, and what finally makes things click.
+I'm Daniel. I'm learning to code Roblox games in Luau, from zero, and this repo is where I write down how it's going.
 
 ## How I learn
 

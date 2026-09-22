@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 21, 2026
+**Last updated:** September 22, 2026
 
 ## Contents
 
@@ -299,6 +299,38 @@ return boolean and "Yes" or "No"
 ```
 
 The trap: it breaks when the middle value is `false` or `nil`. `true and false or "oops"` gives `"oops"`. In Luau there's a cleaner form without the trap: `if boolean then "Yes" else "No"`, which plain Lua doesn't have.
+
+It also relies on `0` counting as true. In `cond and 0 or n * m`, when the condition is true the result is `0 or n * m`, and that stays `0` only because `0` is not false.
+
+### Reading a line like this
+
+Treat it like arithmetic: replace one small piece at a time with its answer, until one value is left. With `n = 5, m = -5`:
+
+```text
+(n <= 0 or m <= 0) and 0 or n * m
+(5 <= 0 or -5 <= 0) and 0 or 5 * -5
+(false or true) and 0 or 5 * -5
+true and 0 or 5 * -5
+0 or 5 * -5
+0
+```
+
+- A comparison is not a command. It's a question whose answer is a value, `true` or `false`.
+- Parentheses work like in math: the inside is answered first.
+- Talk about the parts as **first** and **second**, not left and right.
+
+### When to use which
+
+| Situation | What to write |
+|---|---|
+| The decision chooses which code runs, or needs more than one line | A normal `if` |
+| Choosing between two simple values in Roblox | `if ... then ... else` as a one-line value |
+| A default value | `local speed = customSpeed or 16` |
+| Choosing between two values in plain Lua | `if`, or `and`/`or` when it reads easily |
+
+- `and`/`or` produce a **value**, so they fit where a statement can't: `print(raceActive and "Racing" or "Waiting")`.
+- There is no speed difference worth thinking about. Choose what's easiest to read.
+- If I have to stop and decode a line step by step, it should be an `if`.
 
 ---
 
@@ -756,6 +788,18 @@ Luau is Roblox's version of Lua. It started from Lua 5.1 and was released as ope
 - Codewars and Exercism run plain Lua, so none of the Luau-only features work there.
 - When searching for help, add "Luau" or "Roblox". Plain Lua tutorials mostly work, except for file access and loading external code.
 
+### Running plain Lua
+
+- VS Code only edits Lua. Running it needs Lua installed on the computer.
+- Without installing anything: [OneCompiler](https://onecompiler.com/lua) runs Lua in the browser.
+- On Codewars, anything printed inside the solution shows up in the output when pressing Test.
+
+### Learning from Codewars
+
+- Check the formula against the examples by hand before writing code. The examples are part of the task.
+- After solving, read two or three other solutions.
+- **Fork** opens someone else's solution as my own copy, so I can add prints and run the tests on it. **Compare with your solution** shows both side by side.
+
 ---
 
 ## Gotchas
@@ -779,3 +823,4 @@ Luau is Roblox's version of Lua. It started from Lua 5.1 and was released as ope
 | A loop without `task.wait()` freezes Studio | Every `while` and `repeat` needs one inside |
 | Code below a loop waits for the loop to end | Connect events above the loop |
 | One handler for two parts can't tell them apart | Wrap it and pass the part, or write one function per part |
+| `0` counts as true in Lua | Only `false` and `nil` are false. `0 or 25` gives `0` |
