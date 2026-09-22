@@ -13,6 +13,7 @@ I'm Daniel. I'm learning to code Roblox games in Luau, from zero, and this repo 
 |---|---|
 | [`NOTEBOOK.md`](NOTEBOOK.md) | Everything I've learned so far, organized by topic |
 | [`journal/`](journal/) | One entry per learning session: challenges, mistakes and insights |
+| [`race-timer-with-start-and-finish.luau`](race-timer-with-start-and-finish.luau) | A script from the course that I took further: start line, timer, medals |
 
 ## Roadmap
 
