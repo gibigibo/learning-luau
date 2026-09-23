@@ -5,13 +5,15 @@
 	Where it goes: a Script inside the FinishLine part.
 	Assumes: workspace.Race.StartingLine exists, and both lines are anchored parts.
 
+	Fixed: finishing and stepping on the start line again within a second used to leave
+	the old timer running next to the new one. Every finished race now adds one to
+	touchedTimes, and each timer loop only counts while its own number (nowTime) is
+	still the current one.
+
 	Known issues I'm still working on:
-	1. Finish a race and step on the start line again within one second: the old timer
-	   loop is still inside its task.wait, wakes up, and keeps counting alongside the
-	   new one, so the number goes up twice per second.
-	2. With more than one player, anyone can start or finish anyone else's race.
-	3. The "if not raceActive" around the second Connect does nothing. That line runs
-	   once when the script starts. Leftover from a first attempt at issue 1.
+	1. With more than one player, anyone can start or finish anyone else's race.
+	2. The "if not raceActive" around the second Connect does nothing. That line runs
+	   once when the script starts. Leftover from a first attempt at the timer bug.
 ]]
 
 -- start count when toching the start line and stop when finish the end
@@ -19,11 +21,13 @@ local finishLine = script.Parent
 local startLine = workspace.Race.StartingLine
 local timePassed = 0
 local raceActive = false
+local touchedTimes = 0 
 
 local function timer ()
-	while raceActive do
+	local nowTime = touchedTimes
+	while raceActive and nowTime == touchedTimes do
 		task.wait(1)
-		if raceActive then
+		if raceActive and nowTime == touchedTimes then
 			timePassed += 1
 			print(timePassed)
 		end
@@ -50,6 +54,7 @@ local function partTouched(otherPart, whichLine)
 	local humanoid = character:FindFirstChildWhichIsA("Humanoid")
 	--Triger FinishLine
 	if humanoid and raceActive and whichLine == finishLine then
+		touchedTimes += 1
 		finish()
 	-- Triger StartingLine
 	elseif humanoid and not raceActive and whichLine == startLine then
