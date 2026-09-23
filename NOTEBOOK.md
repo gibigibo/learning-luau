@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 22, 2026
+**Last updated:** September 23, 2026
 
 ## Contents
 
@@ -45,6 +45,7 @@ Everything I've learned about coding in Roblox, organized by topic. I update it 
 - When I stop the game (the red square), **everything resets** to edit mode: both changes I made by hand and changes the script made.
 - To see what a script did: press Play, select the object in Explorer, and look at Properties **while the game is running**.
 - Keep the Output window open. Always.
+- **Don't edit code while the game is running.** Signs that it's running: the red square is lit, and there are Client and Server tabs. Edits made in test mode are not saved, and a second tab with the same script name is a warning sign.
 
 ---
 
@@ -359,6 +360,27 @@ while raceActive do
 	end
 end
 ```
+
+### Is this still my run?
+
+A true/false can't tell that it changed and changed back while a loop was sleeping. A number that only goes up can. Give every run a number, and let each loop remember its own:
+
+```lua
+local function timer()
+	local myRace = raceNumber      -- this call's own copy
+	while raceActive and myRace == raceNumber do
+		task.wait(1)
+		if raceActive and myRace == raceNumber then
+			timePassed += 1
+		end
+	end
+end
+```
+
+- `raceNumber` goes up by one every time a race ends (or starts), and never goes back.
+- Every call to the function gets its own local `myRace`, frozen at the number it started with.
+- An old loop that wakes up during a newer race sees a different number and leaves.
+- The `while` and the `if` check the same thing on purpose: one before sleeping, one after waking.
 
 Two other loops:
 
@@ -776,6 +798,7 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 | `ChangeColor:2` | The script name and the line number |
 
 - Clicking the red line in Output jumps to that line in the code.
+- `<eof>` means end of file: Luau reached the end while still waiting for something, usually an `end`. The line in "to close 'function' at line N" is where the unclosed block starts. The "did you forget..." part is only Studio's guess, and can point to the wrong place.
 - The message names the object it looked inside, with its full path, for example `MeshPart "Workspace.Alpharenko.RightFoot"`. That alone often tells me what an object is and where it sits.
 - The lines from `Stack Begin` to `Stack End` show the path the code took to reach the error.
 - **The script stops at the line with the error.** Nothing after it runs.
@@ -838,3 +861,5 @@ Luau is Roblox's version of Lua. It started from Lua 5.1 and was released as ope
 | `0` counts as true in Lua | Only `false` and `nil` are false. `0 or 25` gives `0` |
 | `else if` with a space is two statements | It opens a new `if` that needs its own `end`. The error is `'end' expected (to close 'if' at line N)` |
 | A local function can't be seen from above | A function written earlier that calls it gets `nil`, and fails with `attempt to call a nil value` when it runs |
+| A true/false can't show that it changed and changed back | Use a number that only goes up, and let each loop remember its own |
+| Edits made while the game is running are lost | Stop the game before changing code |
