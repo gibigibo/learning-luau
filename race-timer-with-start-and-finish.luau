@@ -10,10 +10,8 @@
 	touchedTimes, and each timer loop only counts while its own number (nowTime) is
 	still the current one.
 
-	Known issues I'm still working on:
-	1. With more than one player, anyone can start or finish anyone else's race.
-	2. The "if not raceActive" around the second Connect does nothing. That line runs
-	   once when the script starts. Leftover from a first attempt at the timer bug.
+	Known issue I'm still working on:
+	With more than one player, anyone can start or finish anyone else's race.
 ]]
 
 -- start count when toching the start line and stop when finish the end
@@ -66,8 +64,6 @@ end
 finishLine.Touched:Connect(function (otherPart) 
 	partTouched(otherPart, finishLine)
 end)
-if not raceActive then
-	startLine.Touched:Connect(function (otherPart) 
+startLine.Touched:Connect(function (otherPart) 
 		partTouched (otherPart, startLine)
-	end)
-end
+end)
