@@ -22,7 +22,7 @@ I'm Daniel. I'm learning to code Roblox games in Luau, from zero, and this repo 
 |---|---|---|
 | 0 | Roblox Studio basics (no code) | ✅ Done |
 | 1 | First scripts: variables and properties | ✅ Done |
-| 2 | Conditions and functions | 🟡 In progress |
+| 2 | Conditions and functions | ✅ Done |
 | 3 | Events | 🟡 In progress |
 | 4 | Loops and timing | ⬜ |
 | 5 | Tables | ⬜ |
