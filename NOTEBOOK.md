@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 23, 2026
+**Last updated:** September 25, 2026
 
 ## Contents
 
@@ -236,6 +236,14 @@ print(10 % 3)         -- 1: the remainder
 print(2 ^ 3)          -- 8
 ```
 
+`%` is the easy way to tell even from odd: `n % 2` is `0` for an even number and `1` for an odd one. That holds for negative numbers too, because when dividing by a positive number, the remainder in Lua is never negative:
+
+```lua
+print(7 % 2)     -- 1: odd
+print(8 % 2)     -- 0: even
+print(-3 % 2)    -- 1: still odd, not -1
+```
+
 Shorthand: `coins += 5` is the same as `coins = coins + 5`. There is also `-=`, `*=`, `/=` and `..=`.
 
 Joining text has its own operator, `..`, in the Variables chapter.
@@ -293,10 +301,18 @@ end
 - `a and b` gives `a` if `a` is false, otherwise `b`.
 - `a or b` gives `a` if `a` is true, otherwise `b`.
 
+A way to picture `and`: a guard at a door checks a ticket first, and only then an ID. No ticket, and he doesn't even look at the ID: "no ticket" is the answer. Ticket OK, and the answer is whatever the ID check says.
+
 That's why this one line works like an `if`:
 
 ```lua
 return boolean and "Yes" or "No"
+```
+
+My own one, from the Even or Odd kata:
+
+```lua
+return (number % 2) == 1 and "Odd" or "Even"
 ```
 
 The trap: it breaks when the middle value is `false` or `nil`. `true and false or "oops"` gives `"oops"`. In Luau there's a cleaner form without the trap: `if boolean then "Yes" else "No"`, which plain Lua doesn't have.
@@ -714,7 +730,7 @@ A colon means "of type". That's why it's `:Connect` and not a call on `Touched` 
 - A character is made of many parts, and each one fires `Touched` separately. Output groups identical lines and counts them: `Touched (x20)`.
 - `Touched` doesn't care who touched: a player, another part, or the ground.
 - A part that isn't `Anchored` rests on the floor, so `Touched` fires the moment the game starts, before any player is involved.
-- If the function contains `task.wait`, new calls keep starting while the first one is still waiting, so several copies of it run at the same time. The fix is a debounce, which needs `if`.
+- If the function contains `task.wait`, new calls keep starting while the first one is still waiting, so several copies of it run at the same time. The fix is a debounce, below.
 
 Inside the function there are always two different objects: the part the script sits in, and the one that touched it.
 
@@ -756,7 +772,9 @@ A `Connect` line runs **once**, when the script starts, so wrapping it in an `if
 
 ### Debounce
 
-To stop one touch from running the function many times, the part stops firing events while the work is happening:
+Debounce is not a Luau keyword. It's the name of a technique: making one touch count as one. The word comes from electronics, where a physical button bounces and registers several presses.
+
+**Option 1: the part stops firing events** while the work is happening:
 
 ```lua
 part.CanTouch = false
@@ -765,6 +783,22 @@ part.CanTouch = true
 ```
 
 The line that turns it back on has to come **after** the waiting. If it comes before, the part reopens while the first run is still going, and a second copy of the function starts alongside it.
+
+**Option 2: a true/false that says "busy".** The race script does this with `raceActive`:
+
+```lua
+local busy = false
+
+local function onTouch(otherPart)
+	if not busy then
+		busy = true
+		-- do the thing, including any task.wait
+		busy = false
+	end
+end
+```
+
+`CanTouch` only works for touches. The true/false works with any event, and it's the version most other people's code uses.
 
 ---
 
@@ -834,6 +868,9 @@ Luau is Roblox's version of Lua. It started from Lua 5.1 and was released as ope
 - Check the formula against the examples by hand before writing code. The examples are part of the task.
 - After solving, read two or three other solutions.
 - **Fork** opens someone else's solution as my own copy, so I can add prints and run the tests on it. **Compare with your solution** shows both side by side.
+- Every kata has tags, like `FUNDAMENTALS` or `ALGORITHMS`, and the kata search can filter by them.
+- An algorithm is a recipe of steps for solving a problem. The classic ones (sorting, searching, finding a path) mostly work on lists, so the `ALGORITHMS` tag waits until after tables.
+- LeetCode is built around job interviews, with every problem tagged by the technique it trains. It doesn't support Lua, so I stay on Codewars.
 
 ---
 
