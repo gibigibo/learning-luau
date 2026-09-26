@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 25, 2026
+**Last updated:** September 26, 2026
 
 ## Contents
 
@@ -43,7 +43,7 @@ Everything I've learned about coding in Roblox, organized by topic. I update it 
 - A script runs only when the game runs (the blue Play button), top to bottom, once.
 - A regular Script runs only if it's inside `ServerScriptService` or `Workspace`.
 - When I stop the game (the red square), **everything resets** to edit mode: both changes I made by hand and changes the script made.
-- To see what a script did: press Play, select the object in Explorer, and look at Properties **while the game is running**.
+- To see what a script did: press Play, select the object in Explorer, and look at Properties **while the game is running**. That includes things a script added, like a ParticleEmitter inside my character's Head (Workspace, then my name, then Head).
 - Keep the Output window open. Always.
 - **Don't edit code while the game is running.** Signs that it's running: the red square is lit, and there are Client and Server tabs. Edits made in test mode are not saved, and a second tab with the same script name is a warning sign.
 
@@ -158,6 +158,23 @@ print("Sorry, my second cat is " .. secondCat)
 print("my cat is " .. secondCat)   -- my cat is Maki
 print("my cat is" .. secondCat)    -- my cat isMaki
 ```
+
+`+` doesn't join text. In Lua it's only for math, and on normal text it fails with an `attempt to perform arithmetic` error.
+
+### Text has its own functions
+
+Text values come with functions of their own, called with a colon, like `part:Destroy()`:
+
+```lua
+local word = "Hello"
+print(word:rep(3))     -- HelloHelloHello
+print(word:upper())    -- HELLO: every letter, not just the first
+print(word:lower())    -- hello
+print(word:reverse())  -- olleH
+```
+
+- `rep` is short for repeat.
+- Online they're written as `string.rep`, `string.upper` and so on. That `string` is Lua's built-in toolbox for text.
 
 ### Copies and references
 
@@ -284,6 +301,7 @@ end
 ```
 
 - `elseif` is one word. `else if` with a space opens a new `if` that needs its own `end`.
+- Lines after an `if` run no matter what the check said. Anything that should happen only when the check passes goes **inside** the `if`.
 - Only two values count as false: `false` and `nil`. Everything else counts as true, including `0` and empty text.
 - So `if raceActive then` is enough, and `if not raceActive then` replaces `== false`. `== true` adds nothing when the value is always true or false.
 
@@ -493,6 +511,9 @@ Every property accepts **one type** of value:
 | Size | Vector3 | `Vector3.new(35, 35, 35)` |
 | Position | Vector3 | `Vector3.new(0, 10, 0)` |
 | Parent | another object | `workspace.Ocean` |
+| Color of a ParticleEmitter | ColorSequence | `ColorSequence.new(Color3.fromRGB(0, 0, 255))` |
+
+A ParticleEmitter's `Color` isn't a Color3. It takes a ColorSequence, and `ColorSequence.new(...)` makes one out of a single Color3.
 
 ### Color3: a color made of three numbers (red, green, blue)
 
@@ -556,6 +577,7 @@ workspace.Coal.Parent = workspace.Ocean   -- Coal is now inside Ocean
 
 - The value of `Parent` is another object, not a number or a color. It answers "who am I inside of".
 - `part.Parent = nil` takes an object out of the world but keeps it in memory, so it can be put back. `Destroy` is final.
+- `Destroy` takes all the children with it. If the script sits inside that part, the script is destroyed too, and any run of it that's still waiting in a `task.wait` is cancelled and never continues. The line that destroys the script's own part comes last.
 - The parent decides whether code runs at all: a Script inside `Workspace` or `ServerScriptService` runs, the same script inside a storage service or under `Players` does not.
 
 ### Looking for a child
@@ -565,6 +587,7 @@ workspace.Coal.Parent = workspace.Ocean   -- Coal is now inside Ocean
 | `FindFirstChild("Humanoid")` | A child with that **name** | The child, or `nil` |
 | `FindFirstChildWhichIsA("Humanoid")` | A child of that **class** | The child, or `nil` |
 | `FindFirstChildOfClass("Humanoid")` | That exact class | The child, or `nil` |
+| `WaitForChild("Head")` | A child with that **name** | The child. If it isn't there yet, it waits until it is |
 
 ```lua
 local humanoid = character:FindFirstChildWhichIsA("Humanoid")
@@ -708,6 +731,7 @@ trap.Touched:Connect(onTouch)
 - `trap.Touched` is a signal object. It doesn't do anything by itself, it just fires.
 - `:Connect` is a function of that signal. It registers my function as a listener.
 - `onTouch` goes in **without parentheses**: the function itself, not its result.
+- With parentheses, `Connect(onTouch())`, Lua first runs `onTouch`, right when the script starts and with nothing in its parentheses, and hands `Connect` whatever came out. It's the same order as `print(give())`: what's inside the parentheses is worked out first. That's how the whole language works, not something special about `Touched`.
 - The `Connect` line runs once, when the game starts, and prints nothing. The script then finishes, but the connection stays alive.
 
 ### Reading an event in the docs
@@ -748,6 +772,18 @@ end
 
 `otherPart` is a single body part, its parent is the whole character, and a character always contains a Humanoid. Anything else, like the floor or another part, gives `nil`.
 
+The course does it through the Players service:
+
+```lua
+local player = Players:GetPlayerFromCharacter(otherPart.Parent)
+if player then
+	-- player is the Player, the one that holds leaderstats
+end
+```
+
+- `GetPlayerFromCharacter` gives the Player whose character that is, or `nil`. The Player is what holds things like `leaderstats`. The character is only the body.
+- A hat isn't directly inside the character. Its parent is the hat itself, so a hat touch gives `nil`.
+
 ### One function for two parts
 
 A handler receives only what the event hands it. `Touched` hands over who touched, never which part was touched, so one function connected to two parts can't tell them apart. `Connect` accepts only the function, so an extra value after a comma never arrives.
@@ -783,6 +819,22 @@ part.CanTouch = true
 ```
 
 The line that turns it back on has to come **after** the waiting. If it comes before, the part reopens while the first run is still going, and a second copy of the function starts alongside it.
+
+With a player check, all of it goes inside the `if`:
+
+```lua
+local function onTouch(otherPart)
+	local player = Players:GetPlayerFromCharacter(otherPart.Parent)
+	if player and part.CanTouch then
+		part.CanTouch = false
+		-- do the thing, including any task.wait
+		part.CanTouch = true
+	end
+end
+```
+
+- `CanTouch` goes off only after checking that it's a player. Otherwise a hat or a falling part turns it off, and nothing turns it back on.
+- `part.CanTouch` is checked in the `if` too, because touches from the same moment can still arrive after it's off.
 
 **Option 2: a true/false that says "busy".** The race script does this with `raceActive`:
 
@@ -833,12 +885,15 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 
 - Clicking the red line in Output jumps to that line in the code.
 - `<eof>` means end of file: Luau reached the end while still waiting for something, usually an `end`. The line in "to close 'function' at line N" is where the unclosed block starts. The "did you forget..." part is only Studio's guess, and can point to the wrong place.
+- `attempt to index nil with 'Parent'`: the code tried to take `.Parent` from something that is `nil`. In that line, whatever comes right before `.Parent` is the empty one.
 - The message names the object it looked inside, with its full path, for example `MeshPart "Workspace.Alpharenko.RightFoot"`. That alone often tells me what an object is and where it sits.
 - The lines from `Stack Begin` to `Stack End` show the path the code took to reach the error.
 - **The script stops at the line with the error.** Nothing after it runs.
 - Script Analysis does **not** catch this kind of error, because the editor can't know what will exist in the game. It only shows up in Output.
 
 **How to fix it:** check the exact name and location in Explorer.
+
+**No error, but something doesn't happen:** put a `print` before and after the suspicious line. If the second one never shows up in Output, the code stopped in between.
 
 ---
 
@@ -900,3 +955,8 @@ Luau is Roblox's version of Lua. It started from Lua 5.1 and was released as ope
 | A local function can't be seen from above | A function written earlier that calls it gets `nil`, and fails with `attempt to call a nil value` when it runs |
 | A true/false can't show that it changed and changed back | Use a number that only goes up, and let each loop remember its own |
 | Edits made while the game is running are lost | Stop the game before changing code |
+| `Connect(onTouch())` runs the function right away | `attempt to index nil with 'Parent'` as soon as the game starts. No parentheses inside `Connect` |
+| `+` doesn't join text | Text is joined with `..` |
+| Destroying the part a script sits in destroys the script too | A run that's still waiting never continues. Destroy the script's own part last |
+| A line after an `if` runs even when the check failed | What only the one who passed should do goes inside the `if` |
+| Copies of a part each have their own script | Changing one copy's script doesn't change the others |
