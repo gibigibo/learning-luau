@@ -24,7 +24,7 @@ I'm Daniel. I'm learning to code Roblox games in Luau, from zero, and this repo 
 | 1 | First scripts: variables and properties | ✅ Done |
 | 2 | Conditions and functions | ✅ Done |
 | 3 | Events | 🟡 In progress |
-| 4 | Loops and timing | ⬜ |
+| 4 | Loops and timing | 🟡 In progress |
 | 5 | Tables | ⬜ |
 | 6 | Players and leaderstats | ⬜ |
 | 7 | Server vs client | ⬜ |
