@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 26, 2026
+**Last updated:** September 27, 2026
 
 ## Contents
 
@@ -175,6 +175,41 @@ print(word:reverse())  -- olleH
 
 - `rep` is short for repeat.
 - Online they're written as `string.rep`, `string.upper` and so on. That `string` is Lua's built-in toolbox for text.
+
+### Colon versus `string.`
+
+These two lines are the same. With a colon, whatever comes before it goes in as the first thing in the parentheses:
+
+```lua
+str:gsub(" ", "")
+string.gsub(str, " ", "")
+```
+
+### gsub: replacing inside text
+
+`gsub` searches the text and replaces everything it finds. To delete spaces, replace each one with empty text:
+
+```lua
+local clean = str:gsub(" ", "")
+```
+
+What it looks for isn't plain text, it's a **pattern**. Inside a pattern, `%` means "not this character, a kind of character":
+
+| Pattern | What it matches |
+|---|---|
+| `" "` | Only a normal space |
+| `"%s"` | Any whitespace: space, Tab, new line |
+| `"%d"` | Any digit |
+| `"%a"` | Any letter |
+
+```lua
+local text = "a b\tc"         -- \t is a Tab
+print((text:gsub(" ", "")))   -- ab	c: the Tab stayed
+print((text:gsub("%s", "")))  -- abc: every kind of space is gone
+```
+
+- `gsub` hands back two things: the new text, and how many replacements it made. The extra parentheses in `print` keep only the text.
+- On Codewars the test only compares the first one, so `return str:gsub(" ", "")` passes.
 
 ### Copies and references
 
@@ -383,6 +418,7 @@ end
 - A `while` loop repeats as long as its condition is true.
 - **Every loop needs a `task.wait()`.** Without it the loop never lets anything else in the game run, Studio freezes, and the script is stopped with an error.
 - The script **stays inside the loop** until it ends. Nothing below it runs in the meantime, which is why event connections go **above** the loop.
+- `while true do` never ends by itself. That's fine for something that should run as long as the game runs, like a part that keeps changing color, as long as there's a `task.wait` inside and it sits at the bottom of the script.
 - A loop at the bottom of a script runs once, when the script starts. If its condition is false at that moment, it's skipped and never checked again. To run it later, put it inside a function and call that function when needed.
 - The condition is only checked at the start of each round. A round that already began finishes even if the condition became false during its `task.wait`. To stop that, check the condition again inside the loop, after the wait:
 
@@ -782,7 +818,7 @@ end
 ```
 
 - `GetPlayerFromCharacter` gives the Player whose character that is, or `nil`. The Player is what holds things like `leaderstats`. The character is only the body.
-- A hat isn't directly inside the character. Its parent is the hat itself, so a hat touch gives `nil`.
+- When a hat touches, the part that touched sits inside the hat, so `otherPart.Parent` is the hat and not the character. That gives `nil`.
 
 ### One function for two parts
 
