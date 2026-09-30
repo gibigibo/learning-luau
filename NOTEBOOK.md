@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 29, 2026
+**Last updated:** September 30, 2026
 
 ## Contents
 
@@ -211,6 +211,76 @@ print((text:gsub("%s", "")))  -- abc: every kind of space is gone
 
 - `gsub` hands back two things: the new text, and how many replacements it made. The extra parentheses in `print` keep only the text.
 - On Codewars the test only compares the first one, so `return str:gsub(" ", "")` passes.
+
+### More pattern pieces
+
+A pattern is built from two kinds of pieces: which character (a **character class**, like `%a`), and how many in a row (a **quantifier**, like `+`).
+
+| Class | What it matches |
+|---|---|
+| `%a` | A letter |
+| `%d` | A digit |
+| `%s` | Whitespace |
+| `%w` | A letter or a digit |
+| `%p` | Punctuation: `.` `,` `!` `'` and so on |
+| `%l` / `%u` | A lowercase / uppercase letter |
+| `.` | Any character at all |
+
+The same letter in uppercase means the opposite: `%A` is anything that is not a letter.
+
+| Quantifier | How many |
+|---|---|
+| `+` | One or more |
+| `*` | Zero or more |
+| `?` | Zero or one |
+
+The quantifier only applies to the piece right before it.
+
+**Square brackets** make a set: one character, any of the ones inside.
+
+| Set | Matches |
+|---|---|
+| `[aeiou]` | One of these letters |
+| `[%a']` | A letter or an apostrophe |
+| `[0-9]` | A digit from 0 to 9 (a dash inside is a range) |
+| `[^%s]` | Anything that is **not** whitespace (`^` at the start flips the set) |
+
+Without brackets, pieces come **one after the other**. Inside brackets, they're a **choice**:
+
+```lua
+"%a%p+"     -- one letter, then one or more punctuation: in "William O'Brien" only "O'"
+"[%a%p]+"   -- a run of characters that are each a letter or punctuation: "William", "O'Brien"
+```
+
+`%a+` cuts "O'Brien" in two, because an apostrophe isn't a letter. The space splits words because it's neither a letter nor punctuation, not because the pattern looks for spaces.
+
+To look up more, search "Lua patterns".
+
+### gmatch: every match, one at a time
+
+`string.gmatch` doesn't hand back a match. It hands back a **function**, and every call to that function gives the next match:
+
+```lua
+local text = "William O'Brien"
+local nextWord = string.gmatch(text, "[%a%p]+")
+
+print(nextWord())   -- William
+print(nextWord())   -- O'Brien
+print(nextWord())   -- nil: no matches left
+```
+
+- `print(string.gmatch(text, "%a+"))` prints `function: 0x...`, the same as printing any function without calling it.
+- The function remembers where it stopped, like a bookmark, so each call moves on. Calling `string.gmatch` again makes a new function that starts from the beginning.
+- A variable can hold a function, just like `local function printFood()` makes a variable whose value is a function.
+- When nothing is left it gives `nil`, and `nil` in `..` crashes with `attempt to concatenate a nil value`.
+
+In a `for ... in` loop, the loop does the calling:
+
+```lua
+for word in string.gmatch(text, "%a+") do
+	print(word)
+end
+```
 
 ### Copies and references
 
@@ -515,6 +585,18 @@ end
 If the first loop goes 0 to 5 and the second 5 to 0, then 5 and 0 each run twice in a row and stay for two seconds. Each loop stops one step before where the other one starts.
 
 A script in the game starts when the server starts, before I'm even looking at the game. Something that happens in the first seconds can be over before I see it. A longer wait makes it easier to watch.
+
+### for ... in: going over things
+
+```lua
+for word in string.gmatch(text, "%a+") do
+	print(word)
+end
+```
+
+- Instead of counting numbers, this form goes over whatever it's given. Here, every word `gmatch` finds.
+- `word` is a name I choose, like `i` or `currentBrightness`. No `local` before it: the loop makes it, and it only exists inside the loop.
+- Behind the scenes the loop calls the `gmatch` function each round, puts the result in `word`, and stops when it gets `nil`.
 
 ---
 
