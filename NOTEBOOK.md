@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 27, 2026
+**Last updated:** September 29, 2026
 
 ## Contents
 
@@ -46,6 +46,7 @@ Everything I've learned about coding in Roblox, organized by topic. I update it 
 - To see what a script did: press Play, select the object in Explorer, and look at Properties **while the game is running**. That includes things a script added, like a ParticleEmitter inside my character's Head (Workspace, then my name, then Head).
 - Keep the Output window open. Always.
 - **Don't edit code while the game is running.** Signs that it's running: the red square is lit, and there are Client and Server tabs. Edits made in test mode are not saved, and a second tab with the same script name is a warning sign.
+- A red dot next to a line number is a **breakpoint**. Clicking in that margin adds one. When the script reaches that line, the whole game stops and shows "Rendering is paused for debugging". To get out: click the red dot to remove it, then Resume (or F5).
 
 ---
 
@@ -276,6 +277,7 @@ print(globalOne)    -- B
 | `-` | Subtraction |
 | `*` | Multiplication |
 | `/` | Division |
+| `//` | Division, rounded down |
 | `%` | Remainder |
 | `^` | Power |
 
@@ -296,7 +298,28 @@ print(8 % 2)     -- 0: even
 print(-3 % 2)    -- 1: still odd, not -1
 ```
 
-Shorthand: `coins += 5` is the same as `coins = coins + 5`. There is also `-=`, `*=`, `/=` and `..=`.
+`%` also tells whether one number is a **factor** of another (divides it with nothing left over). "3 is a factor of 12" means 12 divides by 3, so the bigger number comes first:
+
+```lua
+print(12 % 3 == 0)   -- true: 3 is a factor of 12
+print(3 % 12 == 0)   -- false: 3 % 12 is 3
+```
+
+In `%`, like in `/`, the order matters. The first number is the one being divided.
+
+`//` divides and rounds **down** in one step, the same as `math.floor(a / b)`:
+
+```lua
+print(7 / 2)      -- 3.5
+print(7 // 2)     -- 3
+print(-10 // 4)   -- -3, not -2
+```
+
+Down means towards the smaller number, not towards zero. -2.5 rounds down to -3.
+
+To look it up, search "floor division", not `//`. Search engines ignore symbols. It was added to Luau in 2023, so older guides only use `math.floor`.
+
+Shorthand: `coins += 5` is the same as `coins = coins + 5`. There is also `-=`, `*=`, `/=`, `//=`, `%=` and `..=`.
 
 Joining text has its own operator, `..`, in the Variables chapter.
 
@@ -463,6 +486,35 @@ repeat
 	task.wait(1)
 until not raceActive  -- checks at the end, so it runs at least once
 ```
+
+### for: counting
+
+```lua
+for i = start, finish, step do
+```
+
+- `step` is how much to add each round. Without it, it's 1.
+- A negative step counts down: `for i = 5, 0, -1 do` goes 5, 4, 3, 2, 1, 0.
+- `finish` is included.
+
+Going up and down forever (a light that glows and fades):
+
+```lua
+while true do
+	for b = 0, 4 do
+		light.Brightness = b
+		task.wait(1)
+	end
+	for b = 5, 1, -1 do
+		light.Brightness = b
+		task.wait(1)
+	end
+end
+```
+
+If the first loop goes 0 to 5 and the second 5 to 0, then 5 and 0 each run twice in a row and stay for two seconds. Each loop stops one step before where the other one starts.
+
+A script in the game starts when the server starts, before I'm even looking at the game. Something that happens in the first seconds can be over before I see it. A longer wait makes it easier to watch.
 
 ---
 
