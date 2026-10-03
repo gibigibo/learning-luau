@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** September 30, 2026
+**Last updated:** October 3, 2026
 
 ## Contents
 
@@ -45,6 +45,7 @@ Everything I've learned about coding in Roblox, organized by topic. I update it 
 - When I stop the game (the red square), **everything resets** to edit mode: both changes I made by hand and changes the script made.
 - To see what a script did: press Play, select the object in Explorer, and look at Properties **while the game is running**. That includes things a script added, like a ParticleEmitter inside my character's Head (Workspace, then my name, then Head).
 - Keep the Output window open. Always.
+- Day or night is set per place, in **Lighting**: the `ClockTime` property is the hour in the game, from 0 to 24. `14` is midday, `0` or `22` is night. A new place starts in daytime.
 - **Don't edit code while the game is running.** Signs that it's running: the red square is lit, and there are Client and Server tabs. Edits made in test mode are not saved, and a second tab with the same script name is a warning sign.
 - A red dot next to a line number is a **breakpoint**. Clicking in that margin adds one. When the script reaches that line, the whole game stops and shows "Rendering is paused for debugging". To get out: click the red dot to remove it, then Resume (or F5).
 
@@ -388,6 +389,38 @@ print(-10 // 4)   -- -3, not -2
 Down means towards the smaller number, not towards zero. -2.5 rounds down to -3.
 
 To look it up, search "floor division", not `//`. Search engines ignore symbols. It was added to Luau in 2023, so older guides only use `math.floor`.
+
+What `a // b` answers: how many **whole** groups of `b` fit in `a`. Whatever isn't enough for a whole group is dropped.
+
+| Situation | Math | Answer |
+|---|---|---|
+| 17 candies, 5 per bag. How many full bags? | `17 // 5` | 3 (2 left over) |
+| 20, in groups of 6 | `20 // 6` | 3 (2 left over) |
+| 125 seconds. How many whole minutes? | `125 // 60` | 2 (5 seconds left over) |
+
+`//` and `%` are a pair from the same division: `//` is how many whole times it fits, `%` is what's left. Together they rebuild the number: `6 × 3 + 2 = 20`.
+
+```lua
+local seconds = 125
+local minutes = seconds // 60   -- 2
+local rest = seconds % 60       -- 5: show it as 2:05
+```
+
+`math.ceil` is the opposite of `math.floor`: it rounds **up**. `math.ceil(3.5)` is 4.
+
+### Length: `#`
+
+`#` in front of a string gives its length:
+
+```lua
+local s = "hello world"
+print(#s)              -- 11
+print(string.len(s))   -- 11, the same
+```
+
+- `#` is the short way, and the one most people use.
+- It works on lists too: `#colors` is how many items are in the list.
+- It counts bytes, not letters. A Hebrew letter takes two, so `#"שלום"` is 8. `utf8.len("שלום")` gives 4.
 
 Shorthand: `coins += 5` is the same as `coins = coins + 5`. There is also `-=`, `*=`, `/=`, `//=`, `%=` and `..=`.
 
@@ -1054,6 +1087,8 @@ practicePart is not a valid member of Workspace "Workspace"  -  Server - ChangeC
 | `ChangeColor:2` | The script name and the line number |
 
 - Clicking the red line in Output jumps to that line in the code.
+- `syntax error near 'X'` means the problem was **noticed** at X, not that X is wrong. Luau was still waiting for something from earlier, so the real mistake is often on the line before.
+- `print stringLength` without parentheses is a syntax error. A function call needs `()`.
 - `<eof>` means end of file: Luau reached the end while still waiting for something, usually an `end`. The line in "to close 'function' at line N" is where the unclosed block starts. The "did you forget..." part is only Studio's guess, and can point to the wrong place.
 - `attempt to index nil with 'Parent'`: the code tried to take `.Parent` from something that is `nil`. In that line, whatever comes right before `.Parent` is the empty one.
 - The message names the object it looked inside, with its full path, for example `MeshPart "Workspace.Alpharenko.RightFoot"`. That alone often tells me what an object is and where it sits.
