@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** October 3, 2026
+**Last updated:** October 11, 2026
 
 ## Contents
 
@@ -211,18 +211,35 @@ print((text:gsub("%s", "")))  -- abc: every kind of space is gone
 ```
 
 - `gsub` hands back two things: the new text, and how many replacements it made. The extra parentheses in `print` keep only the text.
+- To keep both, put two names after `local`, separated by a comma. They're filled in order, like parameters:
+
+```lua
+local result, count = string.gsub("Hello world, welcome to the Lua world.", "world", "universe")
+print(result)   -- Hello universe, welcome to the Lua universe.
+print(count)    -- 2
+```
+
+- It works without a function too: `local x, y = 10, 20`. More names than values: the extra names get `nil`. More values than names: the extra values are dropped.
 - On Codewars the test only compares the first one, so `return str:gsub(" ", "")` passes.
 
 ### More pattern pieces
 
-A pattern is built from two kinds of pieces: which character (a **character class**, like `%a`), and how many in a row (a **quantifier**, like `+`).
+Every pattern answers three questions, piece by piece:
+
+1. **Which character?** `e`, `%a`, `.`, `[aeiou]`...
+2. **How many?** Written right after the character. Nothing means exactly once.
+3. **In what order?** Pieces written one after the other must appear in that order.
+
+So `"[aeiou]"` is one vowel, `"%a+"` is a word, `"%d+"` is a number.
+
+The "which character" pieces are called **character classes**, and the "how many" pieces are called **quantifiers**.
 
 | Class | What it matches |
 |---|---|
 | `%a` | A letter |
 | `%d` | A digit |
 | `%s` | Whitespace |
-| `%w` | A letter or a digit |
+| `%w` | A letter or a digit (alphanumeric). Not spaces, punctuation or `_` |
 | `%p` | Punctuation: `.` `,` `!` `'` and so on |
 | `%l` / `%u` | A lowercase / uppercase letter |
 | `.` | Any character at all |
@@ -234,8 +251,18 @@ The same letter in uppercase means the opposite: `%A` is anything that is not a 
 | `+` | One or more |
 | `*` | Zero or more |
 | `?` | Zero or one |
+| `-` | Zero or more, but as **few** as possible |
 
 The quantifier only applies to the piece right before it.
+
+`*` takes as much as it can, `-` as little as it can. The difference shows with `.`, any character:
+
+```lua
+string.match("a1b2c3", "a.*%d")   -- a1b2c3: runs to the last digit
+string.match("a1b2c3", "a.-%d")   -- a1: stops at the first digit
+```
+
+`-` only matters when something comes after it. `"a.-"` alone gives just `a`.
 
 **Square brackets** make a set: one character, any of the ones inside.
 
@@ -256,6 +283,19 @@ Without brackets, pieces come **one after the other**. Inside brackets, they're 
 `%a+` cuts "O'Brien" in two, because an apostrophe isn't a letter. The space splits words because it's neither a letter nor punctuation, not because the pattern looks for spaces.
 
 To look up more, search "Lua patterns".
+
+### match: only the first
+
+`string.match` hands back the **first** match, and stops. A match is one unbroken run:
+
+```lua
+string.match(" let's tiest it out", "%a+")   -- let: the apostrophe ends the run
+string.match(" let's tiest it out", "%a*")   -- "" (empty)
+```
+
+- `%a*` gives empty text, because the string starts with a space. `*` means zero or more, zero letters at the first spot already counts, and match is done.
+- `+` needs at least one, so it keeps looking until it finds `let`.
+- For every match instead of the first, use `gmatch`.
 
 ### gmatch: every match, one at a time
 
@@ -1165,3 +1205,4 @@ Luau is Roblox's version of Lua. It started from Lua 5.1 and was released as ope
 | Destroying the part a script sits in destroys the script too | A run that's still waiting never continues. Destroy the script's own part last |
 | A line after an `if` runs even when the check failed | What only the one who passed should do goes inside the `if` |
 | Copies of a part each have their own script | Changing one copy's script doesn't change the others |
+| `local i = i + 1` inside a loop | It makes a new `i` every round, and the `i` outside stays 0. Inside the loop write `i = i + 1`, no `local` |
