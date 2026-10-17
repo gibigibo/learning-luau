@@ -2,7 +2,7 @@
 
 Everything I've learned about coding in Roblox, organized by topic. I update it after every new topic.
 
-**Last updated:** October 11, 2026
+**Last updated:** October 17, 2026
 
 ## Contents
 
@@ -186,6 +186,36 @@ These two lines are the same. With a colon, whatever comes before it goes in as 
 str:gsub(" ", "")
 string.gsub(str, " ", "")
 ```
+
+### sub: a piece of text
+
+`sub(start, finish)` takes the characters from place `start` to place `finish`. Places start at 1:
+
+```lua
+local n = "605"
+print(n:sub(1, 2))   -- 60
+print(n:sub(2, 3))   -- 05
+print(n:sub(1, 1))   -- 6: same start and finish, so one character
+```
+
+### Text and numbers
+
+`"605"` is text, `605` is a number. `tonumber` turns one into the other:
+
+```lua
+print(tonumber("605") + 1)   -- 606
+print(tonumber("-7"))        -- -7
+```
+
+Under the hood every character is stored as a number, its code. `string.byte` gives it. The digits come in a row, from 48:
+
+```lua
+print(string.byte("0"))        -- 48
+print(string.byte("6"))        -- 54
+print(string.byte("6") - 48)   -- 6: the character "6" turned into the number 6
+```
+
+That's how `tonumber` can be built by hand: turn each character into a digit, and multiply it by its place value. In "605", the 6 is worth 6 × 100, the 0 is 0 × 10, and the 5 is 5 × 1. In real code, just use `tonumber`.
 
 ### gsub: replacing inside text
 
@@ -552,6 +582,7 @@ true and 0 or 5 * -5
 ```
 
 - A comparison is not a command. It's a question whose answer is a value, `true` or `false`.
+- So the answer can go straight into a variable. `local isNegative = n:sub(1, 1) == "-"` is `true` for `"-7"` and `false` for `"605"`. It's a shorter way to write an `if` that sets `true` or `false`.
 - Parentheses work like in math: the inside is answered first.
 - Talk about the parts as **first** and **second**, not left and right.
 
